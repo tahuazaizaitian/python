@@ -1,0 +1,83 @@
+#coding:utf-8
+import itertools
+
+#N串一场次总数
+def N_for_One(NUMBER,N):
+    fenZi = 1
+    fenMu = 1
+    while N >0:
+        #计算C（N，number），N在上，number在下
+        fenZi = fenZi * NUMBER
+        fenMu = fenMu * N
+        NUMBER = NUMBER - 1
+        N = N -1
+    return (fenZi / fenMu)
+
+# 从1到最大数的N串一总数
+def All_for_One(NUMBER):
+    times = 0
+    total = 0
+    while times < (NUMBER + 1):
+        times = times+1
+        total = total + N_for_One(NUMBER,times)
+    return total
+
+# 单种押注所得金额（包含本金）
+def Return_amount(NUMBER,N,LIST):
+    money_return = 0
+    A = list(itertools.combinations(LIST,N))
+    counter =len(A)
+    for j in range(0,counter):
+        money_temp = 1    #单注返回金额
+        for k in range(0,len(A[0])):
+            money_temp = money_temp * A[j][k]
+        money_return = money_return + money_temp
+    return money_return
+
+# 最高赔率一项未中时所得金额
+def bad_state(NUMBER,N,LIST):
+    newList = [1] * NUMBER
+    for i in range(0,NUMBER):
+        newList[i] = I[i]
+    # 计算最大损失
+    max_odds = max(newList)
+    newList.remove(max_odds)
+    print "赔率最高一项为：", max_odds, "       ", "赔率最高一项未中时的回报：", Return_amount(NUMBER - 1, N, newList)
+
+if __name__=='__main__':
+    print "本程序用于计算串注可得最大金额"
+    while 1:
+        print "输入所串场数"
+        number = input()
+        I = [1] * number    #初始化列表长度
+        # 创建列表
+        for i in range(1,number+1):
+            print "输入第%d场赔率：" %i
+            I[i-1] = input()
+
+        # print "该种串法总注数:", N_for_One(number, n)
+        # print "预计收益（包括本金）", Return_amount(number, n)
+
+        # 列出所有串法的最大收益、所串注数、收益效率
+        for i in range(1, number + 1):
+            print "%d串1预计最大收益（包括本金）：" %i, Return_amount(number, i, I), "       ", "所串注数：", N_for_One(number,i), "       ","收益效率：", Return_amount(number, i,I) / N_for_One(number, i)
+
+        while 1:
+            print "输入N串1的系数N，若输入N等于0则从头开始"
+            n = input()
+            if n == 0:
+                break
+            bad_state(number,n,I)
+            print "                                                  "
+            print "=================================================="
+            # newList = I
+            # # 计算最大损失
+            # max_odds = max(newList)
+            # newList.remove(max_odds)
+            # print len(newList)
+            # print "赔率最高一项为：",max_odds,"       ","赔率最高一项未中时的回报：",Return_amount(number-1,n,newList)
+        print"******************************************"
+        print"***************祝您好运*******************"
+        print"******************************************"
+
+
