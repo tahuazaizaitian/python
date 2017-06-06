@@ -1,0 +1,58 @@
+#coding:utf-8
+import urllib2
+import urllib
+import time
+import socket
+
+ip_check_url = 'http://www.google.com.hk/'
+user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:12.0) Gecko/20100101 Firefox/12.0'
+
+Lines_number = 0
+IpPort_List = []
+
+#读取文件
+def OpenFlie():
+    List = []
+    f = open(u'可用ip.txt')
+    global Lines_number
+    for lines in f:
+        Lines_number = Lines_number+1
+        line = lines.strip('\n')#去掉换行符
+        List.append(line)
+    f.close()
+    return List
+
+# Check proxy
+def check_proxy(protocol, pip):
+    try:
+        proxy_handler = urllib2.ProxyHandler({protocol: pip})
+        opener = urllib2.build_opener(proxy_handler)
+        # opener.addheaders = [('User-agent', user_agent)] #这句加上以后无法正常检测，不知道是什么原因。
+        urllib2.install_opener(opener)
+
+        req = urllib2.Request(ip_check_url)
+        time_start = time.time()
+        conn = urllib2.urlopen(req)
+        # conn = urllib2.urlopen(ip_check_url)
+        time_end = time.time()
+        detected_pip = conn.read()
+
+        proxy_detected = True
+
+    except urllib2.HTTPError, e:
+        print "ERROR: Code ", e.code
+        return False
+    except Exception, detail:
+        print "ERROR: ", detail
+        return False
+    return proxy_detected
+
+IpPort_List = OpenFlie()
+for i in range(Lines_number):
+    current_proxy = IpPort_List[i]
+    protocol = "http"
+    proxy_detected = check_proxy(protocol, current_proxy)
+    if proxy_detected:
+        print (" WORKING: " + current_proxy)
+    else:
+        print " FAILED: %s " % (current_proxy,)
